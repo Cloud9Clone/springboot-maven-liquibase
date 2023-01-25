@@ -10,7 +10,7 @@
 The tool comes with some specific concepts, which need to be understood in order to grant some knowledge of how to control the database through files defined in the Back-End projects. The main block i.e. container of changes which is presented in each file is called ```databaseChangeLog``` and similarly files containing it are called ```changelogs```. The following figure visualizes how a XML file should be defined:
 
 <p align="center">
-    <img src="/pictures_docu/databaseChangeLog_exp.png" alt="Example of a databaseCahngeLog tag" align="center"/>
+    <img src="pictures_docu/databaseChangeLog_exp.png" alt="Example of a databaseCahngeLog tag" align="center"/>
 </p>
 <p align="center">
     <em>Example of a databaseChangeLog tag</em>
@@ -44,9 +44,7 @@ After all parts of the terminology regarding the changes executed by Liquibase w
 
 Typical location for all changeLog files is the ```resources``` folder of an ordinary Spring Boot project. There could be also found the static files, templates and not on the last place, the application properties. By creating a folder with the name ```liquibase```, all types of files e.g. regarding the configuration or the changes will be collected in one place. 
 
-!!! Change it for liquibase/...
-
-Following the convention from the Liquibase documentation, the changes should be available under the path ```resources/db/changelogs/```. Each changeSet can be grouped with other changeSets under one databaseChangeLog tag i.e. in one file, or can be defined alone in a file. The same rule applies for the changes. However, the Liquibase team suggests that only one change should be specified per a changeSet container and the reason for this is that Liquibase attempts to execute each changeSet in a transaction that is comitted at the end, or rolled back if there is an error. Some databases will auto-commit statemets which inteferes with this transaction setup and could lead to an unexpected database state.
+Following the convention from the Liquibase documentation, the changes should be available under the path ```resources/db/changelogs/```, but since there will be stored many file types, inside of the ```liquibase``` folder will be defined two folders - ```config``` and ```db```. As the name suggests, ```config``` will contain all environment-specific files whereas ```db``` the changeLogs as per convention from the Liquibase official page. Each changeSet can be grouped with other changeSets under one databaseChangeLog tag i.e. in one file, or can be defined alone in a file. The same rule applies for the changes. However, the Liquibase team suggests that only one change should be specified per a changeSet container and the reason for this is that Liquibase attempts to execute each changeSet in a transaction that is comitted at the end, or rolled back if there is an error. Some databases will auto-commit statemets which inteferes with this transaction setup and could lead to an unexpected database state.
 
 Regardless the number of changes executed to a schema for a specific time period, the community has adopted the so-called parent-child style of structure in order to make the tracing of changes easy to understand from anybody in a company. The following figure visualizes one of the most popular structures:
 
@@ -57,7 +55,7 @@ Regardless the number of changes executed to a schema for a specific time period
     <em>Example of Liquibase changeLogs structure</em>
 </p>
 
-Under ```db/changelogs/``` are found the ```db.changelog-root.xml``` (known as ```db.changelog-master.xml``` in some articles) and the ```usercontent``` folder. The ```db.changelog-root.xml``` does nothing else but just referecing all other changeLogs i.e. the child changeLogs, which can be found in the ```usercontent``` folder. 
+Under ```liquibase/db/changelogs/``` are found the ```db.changelog-root.xml``` (known as ```db.changelog-master.xml``` in some articles) and the ```usercontent``` folder. The ```db.changelog-root.xml``` does nothing else but just referecing all other changeLogs i.e. the child changeLogs, which can be found in the ```usercontent``` folder. 
 
 :memo: **Note:** The names ```db.changelog-root.xml``` and ```usercontent``` are not mandatory to be specified with these name forms. Each convention helping the developers, DBAs etc. to understand easier the sequence of applying changes to a schema is welcome. 
 
@@ -167,15 +165,15 @@ If everything is successfull then the ```databasechangelog``` table should be sy
 
 #### 2.2 Generate diffChangeLog between Local and Database Schema
 
-Normally for defining different tables in a database is used JPA along with classes, representing those tables. With the help of annotations like ```@Entity```, ```@Column```, ```@Id``` etc. and the ```ddl-auto``` property, a schema can be created in principle without performing any actions on the database-side. Although it is convenient, there is no history of the performed changes - the reason why Liquibase is introduced. 
+Normally for defining different tables in a database is used JPA along with classes, representing those tables. With the help of annotations like ```@Entity```, ```@Column```, ```@Id``` etc. and the ```ddl-auto``` property, a schema can be created in principle without performing any actions on the database side. Although it is convenient, there is no history of the performed changes - the reason why Liquibase is introduced. 
 
-Since all modifications are specified in changeSets, after making changes to the models in the project, the same changes should be expressed in a changeLog, so Liquibase can apply them. Instead of doing it manually, the plugin provides an automatic solution, the so-called ```diffChangeLog```. 
+Since all modifications are specified in changeSets, after making changes to the models in the project, the same changes should be expressed in a changeLog, so Liquibase can apply them. Instead of doing it manually, the plugin provides an automatic solution, namely the ```diffChangeLog```. 
 
-In the ```liquibase.properties``` file are defined three properties for generating a differences changeLog between the local models and database schema. One of them is ```diffChangeLogFile``` specifying the path and name where it should be generated. Another one is ```referenceDriver``` which is the name of the database driver to connect with and the final property is the ```referenceUrl``` which is nothing else but the source for the comparison i.e. the local schema or better known as the source database.
+In the ```liquibase.properties``` file are defined three properties for generating a differences changeLog between the local models and database schema. One of them is ```diffChangeLogFile``` specifying the path and name where it should be generated. Another one is ```referenceDriver``` which is the name of the database driver to connect with and the final property is the ```referenceUrl``` which is nothing else but the source for the comparison i.e. the local schema or described in the Liquibase language as the source database.
 
-Looking at the ```liquibase.properties``` figure, the ```referenceUrl``` attribute is defined on four lines. On first line after mentioning the driver ```hibernate:spring:``` follows the part for specifying the path to the models folder e.g. ```com.customprojects.springliquibasemysql.models```. Then on the second line is mentioned the dialect depending on the DBMS. Third and fourth lines are basic naming strategies.
+Looking at the ```liquibase.properties``` figure, the ```referenceUrl``` attribute is defined on four lines. On the first line after mentioning the driver ```hibernate:spring:``` follows the part for specifying the path to the models folder e.g. ```com.customprojects.springliquibasemysql.models```. Then on the second line is mentioned the dialect depending on the DBMS. Third and fourth lines are basic naming strategies.
 
-However, specifying these properties is not enough to generate a ```diffChangeLog``` file. What really stays behind the genereation is another dependency, namely the [liquibase-hibernate](https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-hibernate5). It should be defined in the ```dependencies``` section of the liquibase-maven-plugin along with the [spring-boot-starter-data-jpa](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa) dependency e.g.:
+However, specifying these properties is not enough to generate a ```diffChangeLog``` file. What really stays behind the genereation is another dependency, namely the [liquibase-hibernate](https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-hibernate5). It should be defined in the ```dependencies``` section of the ```liquibase-maven-plugin``` along with the [spring-boot-starter-data-jpa](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa) dependency e.g.:
 
 <p align="center">
     <img src="pictures_docu/liquibase_maven_plugin_extended_exp.png" alt="liquibase-maven-plugin extended" align="center"/>
@@ -229,9 +227,9 @@ If Liquibase is enabled on application startup then in order to execute a specif
 
 or set it with the parameter ```-Dspring.profiles.active=dev``` by running the application from the command line.
 
-So far was taken a look into the selection of changeSets to be run on startup and possible ways for instructing Spring-Boot how to do it. However, the features related to the usage of the ```liquibase-maven``` plugin discussed so far also undergo changes.
+So far was taken a look into the selection of changeSets to be run on application start and possible ways for instructing Spring Boot how to do it. However, the features related to the usage of the ```liquibase-maven plugin``` discussed so far also undergo changes.
 
-The plugin uses properties for the database connection as well as the different file paths, all of them speicified in the ```liquibase.properties``` so in a similar way to the environment-specific application properties file, there will be defined a ```liquibase-{env}.properties``` file. Inside of it, the main changes are related to the different database connection and again mentioning the right ```context```.
+The plugin uses properties for the database connection as well as the different file paths, all of them specified in the ```liquibase.properties``` so in a similar way to the environment-specific application properties file, there will be defined a ```liquibase-{env}.properties``` file. Inside of it, the main changes are related to the different database connection and again mentioning the right ```context```.
 
 <p align="center">
     <img src="pictures_docu/liquibase_application_properties_context_ext.png" alt="Liquibase Application properties with Context" align="center"/>
@@ -248,7 +246,7 @@ In each of those profiles, the ```maven-liquibase``` plugin will be configured t
     <img src="pictures_docu/liquibase_maven_plugin_extended_with_profiles.png" alt="liquibase_maven_plugin_configuration_with_profiles" align="center"/>
 </p>
 <p align="center">
-    <em>Modified configuration of the <code>liquibase-maven</code> plugin (here: for <code>test</code> environment)</em>
+    <em>Modified configuration of the <code>liquibase-maven plugin</code> (here: for <code>test</code> environment)</em>
 </p>
 
 Starting with the property file, it points in this case to ```liquibase-test.properties```. The second change is to override the ```diffChangeLogFile``` and ```outputChangeLogFile``` paths with the required names e.g. ```diff-changelog-test_${maven.build.timestamp}.xml``` and ```output-changelog-test_${maven.build.timstamp}.xml``` so there is a clear distinction between the generated file type and its environment. In the same way are configured the remaining profiles.
@@ -261,8 +259,8 @@ The last piece of changes are the ones applied to the plugin calls, which are su
 | :----: | :----: | :----: |
 | Apply changeSets | mvn liquibase:update | mvn -P{env} liquibase:update |
 | Generate snapshot   | mvn liquibase:generateChangeLog | mvn -P{env} liquibase:generateChangeLog |
-| Synchronize Database | mvn process-resources liquibase:changelogSync | mvn -P{env} process-resources liquibase:changelogSync |
-| Generate Diff-ChangeLog | mvn compile liquibase:diff | mvn -P{env} compile liquibase:diff |
+| Synchronize database | mvn process-resources liquibase:changelogSync | mvn -P{env} process-resources liquibase:changelogSync |
+| Generate diffChangeLog | mvn compile liquibase:diff | mvn -P{env} compile liquibase:diff |
 
 As shown, with the provided ```context``` in the respective ```liquibase-{env}.properties``` file, the only parameter which should be attached to the function call is ```-P{env}``` where ```{env}``` can be any of the defined profiles. An example for performing a diffChangeLog between the current local schema and the test schema looks like ```mvn -Ptest compile liquibase:diff```.
 
@@ -304,7 +302,7 @@ The most interesting are the first and second techniques. By rolling changes for
 
 An example of such a change is presented on the current figure, where there is a need to modify the column ```type``` by specifying a new length of the ```VARCHAR``` related to the table ```advertisement``` and schema ```liquibase_test```. Added as a reference to the ```db.changelog-root.xml``` file will indicate Liquibase that there is a modification to be done. With this approach is done the *roll changes forward* way.
 
-The second most interesting approach for removing a change is the ```rollback``` type of change. It is a separate tag specified next to a change, indicating in case of rollbacking the current changeSet, which required operations should be executed. Some change operations e.g. ```CREATE TABLE``` have an automatic rollback operation like ```DROP TABLE```, so the user can skip providing the rollback tag for such kind of operations. In other words, Liquibase can figure out what action must be executed when there is an attempt for rollback. However, in scenarios like the one presented on the current figure, it is hard for Liquibase to determine what should be the rollback operation so the user must specify it.
+The second most interesting approach for removing a change is the ```rollback``` type of change. It is a separate tag specified next to a change, indicating which required operations should be executed in case of rolling back the current changeSet. Some change operations e.g. ```CREATE TABLE``` have an automatic rollback operation like ```DROP TABLE```, so the user can skip providing the rollback tag for such kind of operations. In other words, Liquibase can figure out what action must be executed when there is an attempt for rollback. However, in scenarios like the one presented on the current figure, it is hard for Liquibase to determine what should be the rollback operation so the user must specify it.
 
 <p align="center">
     <img src="pictures_docu/liquibase_modifyDataType_with_rollback_exp.png" alt="liquibase rollback" align="center"/>
@@ -315,13 +313,14 @@ The second most interesting approach for removing a change is the ```rollback```
 
 By wrapping the rollback logic in its own tag, it indicates Liquibase that those operations will be applied in case a rollback command for the current changeSet is called. Speaking about rollback commands, the library provides several ways to run rollbacks and specifically to limit the widespread of a rollback:
 
-- *rollbackTag*: after executing a ```tagDatabase```, a developer can call this command to revert all changSets prior to the tagged state.
+- *rollbackTag*: after executing a ```tagDatabase```, a developer can call this command to revert all changeSets prior to the tagged state.
 - *rollbackCount*: a developer can specify the number of changeSets to be rolled back and Liquibase will execute it starting from the most recent.
 - *rollbackDate*: the last option is to rollback all changeSets up to some previous point of time.
 
 :warning: **Warning:** In case where a context is provided only to some of the changeSets, applying rollback to those having a specific context must happen by specifying the same context. Otherwise Liquibase will start removing the changeLogs without context (if there are any). 
 
 An example:
+
 | ChangeSet | ... | Context |
 | :----:    | :----: | :----: |
 | changeSet1 | ... | - |
@@ -329,5 +328,5 @@ An example:
 | changeSet3 | ... | dev |
 | changeSet4 | ... | test |
 
-When the command ```mvn liquibase:rollback -Dliquibase.rollbackCount=1 -Dliquibase.environment=test``` gets executed, the last changeSet with the context ```test``` will be rolled back (in the example table, changeSet4). However, if the same operation is executed without providing any context, then the last changeSet without any context will be removed (changeSet2). As a result, it is essential always to specify the context.
+When the command ```mvn -Ptest liquibase:rollback -Dliquibase.rollbackCount=1``` gets executed, the last changeSet with the context ```test``` will be rolled back (in the example table, changeSet4). However, if the same operation is executed without providing any context, then the last changeSet without any context will be removed (changeSet2). As a result, it is essential always to specify the context.
 </div>
