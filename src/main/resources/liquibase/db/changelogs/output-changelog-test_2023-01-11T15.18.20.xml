@@ -1,0 +1,40 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Hristo (generated)" id="1673450306550-1">
+        <createTable tableName="advertisement">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)"/>
+            <column name="type" type="VARCHAR(50)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Hristo (generated)" id="1673450306550-2">
+        <createTable tableName="insurance_test">
+            <column name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)"/>
+            <column name="type" type="VARCHAR(200)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Hristo (generated)" id="1673450306550-3">
+        <createTable tableName="insurance_test_seq">
+            <column name="next_val" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Hristo (generated)" id="1673450306550-4">
+        <createTable tableName="user_test">
+            <column name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="email" type="VARCHAR(100)"/>
+            <column name="name" type="VARCHAR(200)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Hristo (generated)" id="1673450306550-5">
+        <createTable tableName="user_test_seq">
+            <column name="next_val" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

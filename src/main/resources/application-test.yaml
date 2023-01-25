@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/liquibase_test
+    username: root
+    password: letmein
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    change-log: "classpath:liquibase/db/changelogs/db.changelog-root.xml"
+    # enabled: false
+    contexts: test
