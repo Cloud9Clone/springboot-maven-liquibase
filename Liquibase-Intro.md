@@ -1,4 +1,5 @@
-# Liquibase Integration for Inverso BackEnds
+<h1 style="text-align: center;"> Liquibase Integration for Inverso BackEnds</h1>
+
 ***
 
 ## 1. Introduction to Liquibase
@@ -33,7 +34,7 @@ As per convention, the author attribute defines who has written the changeSet wh
     <em>Example of a databaseChangeLog holding many changeSet tags in a XML file</em>
 </p>
 
-The final piece of the main concept is the ```change```. It describes each operation which should be executed on the schema. Observing the figure with multiple changeSets can be seen, how SQL operations like ```CREATE TABLE```, ```DROP TABLE``` etc. are represented with XML tags e.g. ```createTable```, ```dropTable``` carrying the same meaning. For the complete set of operations can be referenced the [current article](https://docs.liquibase.com/change-types/home.html#entities) from the Liquibase documentation.
+The final piece of the main concept is the ```change```. It describes each operation which should be executed on the schema. Observing the figure with multiple changeSets can be seen, how SQL operations like ```CREATE TABLE```, ```DROP TABLE``` etc. are represented with XML tags e.g. ```createTable```, ```dropTable``` carrying the same meaning. For the complete set of operations can be referenced [this article](https://docs.liquibase.com/change-types/home.html#entities) from the Liquibase documentation.
 
 :memo: **Note:** Some tags are used e.g. for differentiation between many DBMS platforms, or specifying a context in terms of if-statement when a specific changeLog should be executed. 
 
@@ -79,7 +80,7 @@ However, all presented changes are with respect to the three main requirements:
 2. If there are any changes to the models in the application, a changeLog representing the differences between the local model structure and the database should be generated.
 3. Research how the configuration should be specified for several environments.
 
-#### 2.1 Execute changeLogs on application startup
+#### 2.1 Execute changeLogs on Application Startup
 The starting point of changes is the application properties file i.e. ```application.properties (or application.yaml)``` related to the project's configuration. There are already specified the connection parameters for the database e.g. ```spring.datasource.url```, ```spring.datasource.username``` etc. so these remain untouched. In case Hibernate is being used for generating all changes made to the data model of the application when the application starts, the first step is to turn this feature off by setting the ```ddl-auto``` property to ```none```:
 
 <p align="center">
@@ -162,7 +163,7 @@ After following these steps comes the moment to synchronize the ```databasechang
 
 If everything is successfull then the ```databasechangelog``` table should be synchronized with the current schema state and the developers can start defining future changeSets. This concludes the solution for the first requirement.
 
-#### 2.2 Generate diffChangeLog between local and database schema
+#### 2.2 Generate diffChangeLog between Local and Database Schema
 
 Normally for defining different tables in a database is used JPA along with classes, representing those tables. With the help of annotations like ```@Entity```, ```@Column```, ```@Id``` etc. and the ```ddl-auto``` property, a schema can be created in principle without performing any actions on the database-side. Although it is convenient, there is no history of the performed changes - the reason why Liquibase is introduced. 
 
@@ -185,7 +186,7 @@ However, specifying these properties is not enough to generate a ```diffChangeLo
 
 Once the configuration is done and some changes are performed to the models, the command ```mvn compile liquibase:diff``` can be executed which will create a ```diffChangeLog``` describing all of the required changes to bring the schema state in the database to the models state in the project. The file can then be stored in the ```usercontent``` folder with an appropriate name, describing the changes and then added as a reference to the ```db.changelog-root.xml``` file so on the next application start or update command execution, Liquibase can process it.
 
-#### 2.3 Configuration for several environments
+#### 2.3 Configuration for several Environments
 So far was introduced all the functionality which can be executed with the help of Liqiubase on a database with a single plugin declaration and single file configuration. Although it is pretty convenient, often there are multiple environments related to a project and as a result there are multiple configuration files, which brings the question how to adapt the same functionality for those multiple environment instances.
 
 The first place where changes must be performed is the application properties file. For the different environments e.g. *prod*, *dev*, *test* etc. will be created a separated file ```application-{environment}.properties/application-{environment}.yaml``` in case such one does not exist yet. Inside of it, there will be specified the connection parameters for the concrete environment and the ```context``` of the changeSets e.g. ```prod```, ```dev``` etc. used for the current environment:
@@ -230,16 +231,25 @@ So far was taken a look into the selection of changeSets to be run on startup an
 
 The plugin uses properties for the database connection as well as the different file paths, all of them speicified in the ```liquibase.properties``` so in a similar way to the environment-specific application properties file, there will be defined a ```liquibase-{env}.properties``` file. Inside of it, the main changes are related to the different database connection and again mentioning the right ```context```.
 
-In the properties section of the ```pom.xml``` file will be introduced two properties. The first one represents the timestamp format which will be always attached to the different files generated with the help of the plugin e.g. ```<maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>```. The second property will be the default environment to be used in case no context property is specified when different liquibase commands get executed e.g. ```<liquibase-environment>test</liquibase-environment>```. 
-
-Moving to the plugin definition, the first change will be to specify the right property file to be used for a specific environment as well as to override the ```diffChangeLogFile``` and ```outputChangeLogFile``` files with the required names:
-
 <p align="center">
-    <img src="pictures_docu/liquibase_maven_plugin_configuration.png" alt="liquibase_maven_plugin_configuration" align="center"/>
+    <img src="pictures_docu/liquibase_application_properties_context_ext.png" alt="Liquibase Application properties with Context" align="center"/>
 </p>
 <p align="center">
-    <em>Modified configuration of the <code>liquibase-maven</code> plugin</em>
+    <em>Liquibase properties with specified context (here: <code>prod</code>)</em>
 </p>
+
+In case there is no timestamp property introduced in the properties section of the ```pom.xml``` file, the following one will be added, representing the timestamp format which will be always attached to the different files generated with the help of the plugin e.g. ```<maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>```. For allowing all operations to be available environment-specific, there are defined several Maven ```profiles```.
+
+In each of those profiles, the ```maven-liquibase``` plugin will be configured to use a particular liquibase-environment properties file. The following figure presents the changes to the plugin configuration for the ```test``` environment.
+
+<p align="center">
+    <img src="pictures_docu/liquibase_maven_plugin_extended_with_profiles.png" alt="liquibase_maven_plugin_configuration_with_profiles" align="center"/>
+</p>
+<p align="center">
+    <em>Modified configuration of the <code>liquibase-maven</code> plugin (here: for <code>test</code> environment)</em>
+</p>
+
+Starting with the property file, it points in this case to ```liquibase-test.properties```. The second change is to override the ```diffChangeLogFile``` and ```outputChangeLogFile``` paths with the required names e.g. ```diff-changelog-test_${maven.build.timestamp}.xml``` and ```output-changelog-test_${maven.build.timstamp}.xml``` so there is a clear distinction between the generated file type and its environment. In the same way are configured the remaining profiles.
 
 :memo: **Note:** The ```path-to...``` in the ```diffChangeLogFile``` and ```outputChangeLogFile``` is only for simplification. Please adjust the path according to the file structure.
 
@@ -247,12 +257,12 @@ The last piece of changes are the ones applied to the plugin calls, which are su
 
 | Command     | In non-environmental context | In environmental context |
 | :----: | :----: | :----: |
-| Apply changeSets | mvn liquibase:update | mvn liquibase:update -Dliquibase-environment=test |
-| Generate snapshot   | mvn liquibase:generateChangeLog | mvn liquibase:generateChangeLog -Dliquibase-environment=test |
-| Synchronize Database | mvn process-resources liquibase:changelogSync | mvn process-resources liquibase:changelogSync -Dliquibase-environment=test |
-| Generate Diff-ChangeLog | mvn compile liquibase:diff | mvn compile liquibase:diff -Dliquibase-environment=test |
+| Apply changeSets | mvn liquibase:update | mvn -P{env} liquibase:update |
+| Generate snapshot   | mvn liquibase:generateChangeLog | mvn -P{env} liquibase:generateChangeLog |
+| Synchronize Database | mvn process-resources liquibase:changelogSync | mvn -P{env} process-resources liquibase:changelogSync |
+| Generate Diff-ChangeLog | mvn compile liquibase:diff | mvn -P{env} compile liquibase:diff |
 
-As shown, with the provided ```context``` in the respective ```liquibase-{env}.properties``` file, the only parameter which should be added to the function call is ```-Dliquibase-environment={env}```.
+As shown, with the provided ```context``` in the respective ```liquibase-{env}.properties``` file, the only parameter which should be attached to the function call is ```-P{env}``` where ```{env}``` can be any of the defined profiles. An example for performing a diffChangeLog between the current local schema and the test schema looks like ```mvn -Ptest compile liquibase:diff```.
 
 :memo: **Note:** All properties e.g. ```context```, ```diffChangeLogFile```, ```url``` etc. from the ```liquibase.properties``` file or the ```pom.xml``` can be overriden by specifying them in the command call. However, due to simplification all of them are provided explicitly so the CLI-operations can become shorter.
 </div>
@@ -317,13 +327,5 @@ An example:
 | changeSet3 | ... | dev |
 | changeSet4 | ... | test |
 
-<div align="center">
-    <table>
-        <tr><th>Item</th><th>Price</th><th># In stock</th></tr>
-        <tr><td>J aa</td><td>1.99</td><td>2322</td></tr>
-        <tr><td>J aa</td><td>1.99</td><td>2322</td></tr>
-</table>
-</div>
-
-When the command ```mvn liquibase:rollback -Dliquibase.rollbackCount=1 -Dliquibase.environment=test``` gets executed, the last changeSet with the context ```test``` will be rolled back (in the example table, changeSet4). However, if the same operation is executed without providing any context, then the last changeSet without any context will be removed (changeSet2). As a result, it is essential to specify always the context.
+When the command ```mvn liquibase:rollback -Dliquibase.rollbackCount=1 -Dliquibase.environment=test``` gets executed, the last changeSet with the context ```test``` will be rolled back (in the example table, changeSet4). However, if the same operation is executed without providing any context, then the last changeSet without any context will be removed (changeSet2). As a result, it is essential always to specify the context.
 </div>
