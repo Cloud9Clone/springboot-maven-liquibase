@@ -18,9 +18,6 @@
         <hibernate.version>5.6.10.Final</hibernate.version>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>
         <liquibase.version>4.16.1</liquibase.version>
-        <liquibase-environment>dev</liquibase-environment>
-        <liquibase-environment>prod</liquibase-environment>
-        <liquibase-environment>test</liquibase-environment>
     </properties>
 
     <repositories>
@@ -85,39 +82,129 @@
     <profiles>
         <profile>
             <id>dev</id>
-            <activation>
-                <property>
-                    <name>${liquibase-environment}</name>
-                    <value>dev</value>
-                </property>
-            </activation>
-            <properties>
-                <activatedProperties>dev</activatedProperties>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase.version}</version>
+                        <configuration>
+                            <propertyFile>src/main/resources/liquibase/config/liquibase-dev.properties</propertyFile>
+                            <diffChangeLogFile>src/main/resources/liquibase/db/changelogs/diff-changelog-dev_${maven.build.timestamp}.xml</diffChangeLogFile>
+                            <outputChangeLogFile>src/main/resources/liquibase/db/changelogs/output-changelog-dev_${maven.build.timestamp}.xml</outputChangeLogFile>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.liquibase.ext</groupId>
+                                <artifactId>liquibase-hibernate5</artifactId>
+                                <version>${liquibase.version}</version>
+                                <scope>runtime</scope>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                <version>${project.parent.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>prod</id>
-            <activation>
-                <property>
-                    <name>${liquibase-environment}</name>
-                    <value>prod</value>
-                </property>
-            </activation>
-            <properties>
-                <activatedProperties>prod</activatedProperties>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase.version}</version>
+                        <configuration>
+                            <propertyFile>src/main/resources/liquibase/config/liquibase-prod.properties</propertyFile>
+                            <diffChangeLogFile>src/main/resources/liquibase/db/changelogs/diff-changelog-prod_${maven.build.timestamp}.xml</diffChangeLogFile>
+                            <outputChangeLogFile>src/main/resources/liquibase/db/changelogs/output-changelog-prod_${maven.build.timestamp}.xml</outputChangeLogFile>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.liquibase.ext</groupId>
+                                <artifactId>liquibase-hibernate5</artifactId>
+                                <version>${liquibase.version}</version>
+                                <scope>runtime</scope>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                <version>${project.parent.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>test</id>
-            <activation>
-                <property>
-                    <name>${liquibase-environment}</name>
-                    <value>test</value>
-                </property>
-            </activation>
-            <properties>
-                <activatedProperties>test</activatedProperties>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase.version}</version>
+                        <configuration>
+                            <propertyFile>src/main/resources/liquibase/config/liquibase-test.properties</propertyFile>
+                            <diffChangeLogFile>src/main/resources/liquibase/db/changelogs/diff-changelog-test_${maven.build.timestamp}.xml</diffChangeLogFile>
+                            <outputChangeLogFile>src/main/resources/liquibase/db/changelogs/output-changelog-test_${maven.build.timestamp}.xml</outputChangeLogFile>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.liquibase.ext</groupId>
+                                <artifactId>liquibase-hibernate5</artifactId>
+                                <version>${liquibase.version}</version>
+                                <scope>runtime</scope>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                <version>${project.parent.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -134,29 +221,6 @@
                         </exclude>
                     </excludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-maven-plugin</artifactId>
-                <version>${liquibase.version}</version>
-                <configuration>
-                    <propertyFile>src/main/resources/liquibase/config/liquibase-${liquibase-environment}.properties</propertyFile>
-                    <diffChangeLogFile>src/main/resources/liquibase/db/changelogs/diff-changelog-${liquibase-environment}_${maven.build.timestamp}.xml</diffChangeLogFile>
-                    <outputChangeLogFile>src/main/resources/liquibase/db/changelogs/output-changelog-${liquibase-environment}_${maven.build.timestamp}.xml</outputChangeLogFile>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.liquibase.ext</groupId>
-                        <artifactId>liquibase-hibernate5</artifactId>
-                        <version>${liquibase.version}</version>
-                        <scope>runtime</scope>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-data-jpa</artifactId>
-                        <version>${project.parent.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
